@@ -1,0 +1,57 @@
+
+<div class="container">
+    <div class="modal-content">
+        <div class="product-detail">
+
+            <div> Formulario para Cifrar Simétrico  - AES</div>
+            
+          <form class="product-form" [formGroup]="formControlCifrar" autofocus (ngSubmit)="cifrar()">
+            <div class="form-group">
+                <label for="product-name">Clave</label>
+                <input type="text" id="product-name" name="product_name" required formControlName="key">
+            </div>
+    
+            <div class="form-group">
+                <label for="product-description">Cadena</label>
+                <textarea id="product-description" name="product_description" rows="4" required formControlName="string"></textarea>
+            </div>
+    
+
+    
+            <button class="btn-buy">Cifrar</button>
+    
+        </form>
+
+        <div> {{stringCifrado}}</div>
+    
+        </div>
+        
+    </div>
+    <div class="modal-content">
+        <div class="product-detail">
+            
+            <div> Formulario para Descifrar Simétrico - AES</div>
+
+          <form class="product-form" [formGroup]="formControlDescifrar" autofocus (ngSubmit)="descifrar()">
+            <div class="form-group">
+                <label for="product-name">Clave</label>
+                <input type="text" id="product-name" name="product_name" required formControlName="key">
+            </div>
+    
+            <div class="form-group">
+                <label for="product-description">Cadena</label>
+                <textarea id="product-description" name="product_description" rows="4" required formControlName="string"></textarea>
+            </div>
+    
+
+    
+            <button class="btn-buy">Descifra</button>
+    
+        </form>
+
+        <div> {{stringDescifrado}}</div>
+    
+        </div>
+        
+    </div>
+</div>
