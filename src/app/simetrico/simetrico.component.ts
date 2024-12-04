@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators, FormBuilder } from '@angular/forms';
 
+import * as CryptoJS from 'crypto-js';
+
 @Component({
   selector: 'app-simetrico',
   standalone: true,
@@ -35,11 +37,14 @@ export class SimetricoComponent {
     if (this.formControlCifrar.valid) {
       console.log("Ciframos");
 
-      let key = this.formControlCifrar.value.key
+
+      let secretKey = this.formControlCifrar.value.key
       let string = this.formControlCifrar.value.string
 
-      console.log(key);
+      console.log(secretKey);
       console.log(string);
+
+      this.stringCifrado = CryptoJS.AES.encrypt(string, secretKey).toString();
       
       
     }
@@ -49,11 +54,17 @@ export class SimetricoComponent {
     if (this.formControlDescifrar.valid) {
       console.log("Desciframos");
 
-      let key = this.formControlCifrar.value.key
-      let string = this.formControlCifrar.value.string
+      let secretKey = this.formControlDescifrar.value.key
+      let string = this.formControlDescifrar.value.string
 
-      console.log(key);
+      console.log(secretKey);
       console.log(string);
+
+      const bytes = CryptoJS.AES.decrypt(string, secretKey);
+      this.stringDescifrado = bytes.toString(CryptoJS.enc.Utf8);
+  
+
+      
       
     }
   }
