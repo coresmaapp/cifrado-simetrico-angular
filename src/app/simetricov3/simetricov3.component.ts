@@ -1,17 +1,19 @@
-import { CommonModule, JsonPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators, FormBuilder } from '@angular/forms';
+
+import { HttpService } from '../../app/services/http.service'
 
 import * as CryptoJS from 'crypto-js';
 
 @Component({
-  selector: 'app-simetricov2',
+  selector: 'app-simetricov3',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './simetricov2.component.html',
-  styleUrl: './simetricov2.component.css'
+  templateUrl: './simetricov3.component.html',
+  styleUrl: './simetricov3.component.css'
 })
-export class Simetricov2Component {
+export class Simetricov3Component {
 
   public formControlCifrar: FormGroup;
   public formControlDescifrar: FormGroup;
@@ -20,7 +22,8 @@ export class Simetricov2Component {
   public stringDescifrado: string = ""
 
   constructor(
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private http: HttpService,
   ) {
     this.formControlCifrar = this.formBuilder.group({
       key: ['', [Validators.required, Validators.minLength(16), Validators.maxLength(16)]],
@@ -45,15 +48,20 @@ export class Simetricov2Component {
       let secretKey = this.formControlCifrar.value.key
       let string = this.formControlCifrar.value.string
 
+      sessionStorage.setItem('key', secretKey)
+
       console.log(secretKey);
       console.log(string);
 
       const encrypted = CryptoJS.AES.encrypt(string, CryptoJS.enc.Utf8.parse(secretKey), {
         mode: CryptoJS.mode.ECB,
-        padding: CryptoJS.pad.NoPadding
+        padding: CryptoJS.pad.Pkcs7
       });
 
       this.stringCifrado = encrypted.toString();
+
+      
+
 
     }
   }
@@ -69,29 +77,15 @@ export class Simetricov2Component {
       let secretKey = this.formControlDescifrar.value.key
       let string = this.formControlDescifrar.value.string
 
-      try {
-        // Desencriptar el mensaje en AES
-        const decrypted = CryptoJS.AES.decrypt(string, CryptoJS.enc.Utf8.parse(secretKey), {
-          mode: CryptoJS.mode.ECB,
-          padding: CryptoJS.pad.NoPadding,
-        });
+      this.http.decript(string)
+          .subscribe(data => {
 
-        // Convertir de texto plano
-        this.stringDescifrado = decrypted.toString(CryptoJS.enc.Utf8);
-
-        var db = JSON.stringify(this.stringDescifrado);
-        var db2 = JSON.parse(db);
+            this.stringDescifrado = data.toString()
+            console.log(data);
+            
+          })
 
 
-
-        console.log(db2.access_token);
-        
-
-        console.log(this.stringDescifrado);
-        
-      } catch (error) {
-        throw new Error('No se pudo desencriptar el mensaje. Verifica la clave y el mensaje.');
-      }
     }
 
 
