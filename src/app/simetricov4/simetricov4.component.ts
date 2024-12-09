@@ -5,19 +5,23 @@ import { ReactiveFormsModule, FormControl, FormGroup, Validators, FormBuilder } 
 import * as CryptoJS from 'crypto-js';
 
 @Component({
-  selector: 'app-simetricov2',
+  selector: 'app-simetricov4',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './simetricov2.component.html',
-  styleUrl: './simetricov2.component.css'
+  templateUrl: './simetricov4.component.html',
+  styleUrl: './simetricov4.component.css'
 })
-export class Simetricov2Component {
+export class Simetricov4Component {
 
   public formControlCifrar: FormGroup;
   public formControlDescifrar: FormGroup;
 
   public stringCifrado: string = ""
+  public b54iv: string = ""
   public stringDescifrado: string = ""
+
+
+  
 
   constructor(
     private formBuilder: FormBuilder
@@ -29,6 +33,7 @@ export class Simetricov2Component {
 
     this.formControlDescifrar = this.formBuilder.group({
       key: ['', [Validators.required, Validators.minLength(16), Validators.maxLength(16)]],
+      iv: ['', [Validators.required]],
       string: ['', [Validators.required]],
     })
   }
@@ -41,6 +46,8 @@ export class Simetricov2Component {
     if (this.formControlCifrar.valid) {
       console.log("Ciframos");
 
+      const iv = CryptoJS.lib.WordArray.random(16);
+
 
       let secretKey = this.formControlCifrar.value.key
       let string = this.formControlCifrar.value.string
@@ -49,11 +56,15 @@ export class Simetricov2Component {
       console.log(string);
 
       const encrypted = CryptoJS.AES.encrypt(string, CryptoJS.enc.Utf8.parse(secretKey), {
-        mode: CryptoJS.mode.ECB,
-        padding: CryptoJS.pad.Pkcs7
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7,
+        iv: iv,
       });
 
       this.stringCifrado = encrypted.toString();
+
+      this.b54iv = iv.toString(CryptoJS.enc.Base64)
+      
 
     }
   }
@@ -68,30 +79,31 @@ export class Simetricov2Component {
 
       let secretKey = this.formControlDescifrar.value.key
       let string = this.formControlDescifrar.value.string
+      let iv = this.formControlDescifrar.value.iv
 
-      try {
+      console.log(iv);
+      
+
+      const ivde_code = CryptoJS.enc.Base64.parse(iv);
+
+      // try {
         // Desencriptar el mensaje en AES
         const decrypted = CryptoJS.AES.decrypt(string, CryptoJS.enc.Utf8.parse(secretKey), {
-          mode: CryptoJS.mode.ECB,
+          mode: CryptoJS.mode.CBC,
           padding: CryptoJS.pad.Pkcs7,
+          iv: ivde_code,
         });
 
         // Convertir de texto plano
-        this.stringDescifrado = decrypted.toString(CryptoJS.enc.Utf8);
-
-        var db = JSON.stringify(this.stringDescifrado);
-        var db2 = JSON.parse(db);
 
 
+        console.log();
+        this.stringDescifrado = decrypted.toString(CryptoJS.enc.Utf8)
 
-        console.log(db2.access_token);
         
-
-        console.log(this.stringDescifrado);
-        
-      } catch (error) {
-        throw new Error('No se pudo desencriptar el mensaje. Verifica la clave y el mensaje.');
-      }
+      // } catch (error) {
+      //   throw new Error('No se pudo desencriptar el mensaje. Verifica la clave y el mensaje.');
+      // }
     }
 
 
